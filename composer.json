@@ -1,0 +1,22 @@
+{
+  "name": "draber/ad-tools",
+  "type": "library",
+  "description": "AdTools PHP Utilities",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dieter Raber",
+      "email": "me@dieterraber.net"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.2.0",
+    "wamania/php-stemmer": "^1.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "AdTools\\": ""
+    }
+  }
+}
