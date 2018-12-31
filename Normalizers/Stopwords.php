@@ -21,12 +21,11 @@
 
 namespace AdTools\Normalizers;
 
-use Exception;
+use AdTools\Exceptions\UnsupportedLanguageException;
 
 /**
  * Class Stopwords
  *
- * @author Dieter Raber <me@dieterraber.net>
  * @package AdTools\Normalizers
  */
 class Stopwords
@@ -34,28 +33,41 @@ class Stopwords
 
     private $stopwordList = [];
 
+    private $text = '';
+
     /**
-     * Stopwords Factory
+     * Stopwords constructor.
      *
      * @param $locale
-     * @return mixed
-     * @throws Exception
+     * @throws UnsupportedLanguageException
      */
     public function __construct($locale)
     {
-        $list = __DIR__ . sprintf('../resources/stopwords/%s.txt', strtolower(substr($locale, 0, 2)));
+        $list = dirname(__DIR__) . sprintf('/resources/stopwords/%s.txt', strtolower(substr($locale, 0, 2)));
         if (!is_file($list)) {
-            throw new Exception(sprintf('No stopword list available for locale %s'), $locale);
+            throw new UnsupportedLanguageException(sprintf('No stopword list available for locale "%s"', $locale));
         }
         $this->stopwordList = array_filter(array_map('trim', file($list)));
     }
 
     /**
+     * Retrieve stopword list
+     * @return array
+     */
+    public function getList() {
+        return $this->stopwordList;
+    }
+
+    /**
      * Remove stopwords from a text
-     * @param $text
+     *
      * @return mixed
      */
-    public function removeStopwords($text) {
-        return str_replace($this->stopwordList, '', $text);
+    public function remove($text)
+    {
+        $stopwordRegExp = implode('|', $this->stopwordList);
+        return preg_replace_callback("~(\W)(" . $stopwordRegExp . ")(\W)~iu", function($matches) {
+            return str_replace('  ', ' ', $matches[1] . $matches[3]);
+        }, $text);
     }
 }

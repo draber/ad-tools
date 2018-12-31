@@ -21,7 +21,7 @@
 
 namespace AdTools\Normalizers;
 
-use Exception;
+use AdTools\Exceptions\UnsupportedLanguageException;
 use Wamania\Snowball\Danish;
 use Wamania\Snowball\Dutch;
 use Wamania\Snowball\English;
@@ -33,13 +33,13 @@ use Wamania\Snowball\Portuguese;
 use Wamania\Snowball\Romanian;
 use Wamania\Snowball\Russian;
 use Wamania\Snowball\Spanish;
+use Wamania\Snowball\Stem;
 use Wamania\Snowball\Swedish;
 
 
 /**
  * Class Stemmer
  *
- * @author Dieter Raber <me@dieterraber.net>
  * @package AdTools\Normalizers
  */
 class Stemmer
@@ -72,24 +72,28 @@ class Stemmer
      * Stemmer Factory
      *
      * @param $locale
-     * @return mixed
+     * @return Stem
      * @throws Exception
      */
     public function __construct($locale)
     {
         $lang = strtolower(substr($locale, 0, 2));
         if (!isset($this->isoLangMap[$lang])) {
-            throw new Exception(sprintf('No stemmer available for locale %s'), $locale);
+            throw new UnsupportedLanguageException(sprintf('No stemmer available for locale "%s"', $locale));
         }
-        $this->stemmer = 'Wamania\\Snowball\\' . $this->isoLangMap[$lang];
+        $stemmerClass = 'Wamania\\Snowball\\' . $this->isoLangMap[$lang];
+        $this->stemmer = new $stemmerClass;
     }
 
 
     /**
+     * Stem a word
+     *
      * @param $word
-     * @return mixed
+     * @return string
      */
-    public function stem($word) {
+    public function stem($word)
+    {
         return $this->stemmer->stem($word);
     }
 }
